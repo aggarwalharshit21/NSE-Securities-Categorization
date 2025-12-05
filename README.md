@@ -1,162 +1,174 @@
-# NSE Securities Categorization Script
+![Python](https://img.shields.io/badge/Python-3.12-blue)
+![Pandas](https://img.shields.io/badge/Pandas-2.x-yellow)
+![Status](https://img.shields.io/badge/Status-Completed-brightgreen)
+![Last Updated](https://img.shields.io/badge/Last%20Updated-2025-orange)
+![Repo Size](https://img.shields.io/github/repo-size/aggarwalharshit21/NSE-Securities-Categorization)
 
-## Overview
-This Jupyter notebook (`main.ipynb`) processes securities data from the National Stock Exchange of India (NSE) to categorize securities into trading categories: "5x", "3x", or "Only Delivery". The categorization is based on average traded value, price band percentage, F&O (Futures and Options) status, and variance data. This helps in determining leverage or margin requirements for trading.
+---
 
-## Prerequisites
-### Required Libraries
-- `pandas` for data manipulation
-- `numpy` for numerical operations
-- `pathlib` for file path handling
+# 📊 NSE Securities Categorization  
+### **A Data Analyst Assignment for Listing Category Classification**
 
-Install via pip if not already installed:
-```
+This project automates the classification of NSE-listed securities into **5x**, **3x**, or **Only Delivery** categories by integrating and processing multiple raw market data sources, including:
+
+- BhavCopy traded-value files  
+- Security master file (`security.txt`)  
+- VAR (Value at Risk) reports  
+- F&O underlying list  
+
+The final categorized output is stored in:
+
+output/securities_categorized.csv
+
+yaml
+Copy code
+
+---
+
+# 🚀 Why This Project Matters
+
+Accurate classification helps:
+
+- Reduce market risk  
+- Improve margin estimation  
+- Support compliance decisions  
+- Assist risk management teams  
+- Enable better investment and trading controls  
+
+This project reflects practical **data cleaning**, **file parsing**, **aggregation**, and **rule-based classification** — essential skills for Data Analysts and Financial Engineers.
+
+---
+
+# ⭐ Features
+
+- Parses raw & inconsistent NSE file formats  
+- Extracts symbol-level insights cleanly  
+- Computes price band % dynamically  
+- Aggregates multi-day Bhav Copy traded values  
+- Integrates VAR-based F&O logic  
+- Produces a clean category label per security  
+- Complete Python processing pipeline (`main.py`)  
+
+---
+
+# 🛠 Technologies Used
+
+| Technology | Purpose |
+|-----------|----------|
+| **Python 3.12** | Core programming |
+| **Pandas** | Data manipulation & merging |
+| **NumPy** | Numeric operations |
+| **File Parsing** | Handling large TXT, DAT, CSV files |
+| **GitHub** | Version control & submission |
+
+---
+
+# 📁 Project Structure
+
+NSE-Securities-Categorization/
+│
+├── data/
+│ ├── security.txt
+│ ├── BhavCopy_NSE_CM (1).csv
+│ ├── BhavCopy_NSE_CM (2).csv
+│ ├── BhavCopy_NSE_CM (3).csv
+│ ├── C_VAR1_06112025_6.DAT
+│ ├── FNO_Underlyings.csv
+│
+├── src/
+│ └── main.py
+│
+├── output/
+│ └── securities_categorized.csv
+│
+└── README.md
+
+yaml
+Copy code
+
+---
+
+# 🚀 How to Run
+
+### 1️⃣ Install dependencies  
 pip install pandas numpy
-```
 
-### Required Files
-- `security.txt`: Main securities file with symbol, series, and price range data.
-- `nse security headers.txt`: Optional file containing column headers for the securities file.
-- `BhavCopy_NSE_CM (1).csv`, `BhavCopy_NSE_CM (2).csv`, `BhavCopy_NSE_CM (3).csv`: Bhav copy files for traded value data.
-- `FNO_Underlyings.csv`: List of F&O underlying symbols.
-- `C_VAR1_06112025_6112025.csv`: Variance data file (note: the code has a typo, it should be `C_VAR1_06112025_6.DAT` based on environment, but code uses `.csv`).
+shell
+Copy code
 
-### Output File
-- `securities_categorized.csv`: Final categorized securities data.
+### 2️⃣ Run the processing script  
+python src/main.py
 
-## Detailed Step-by-Step Walkthrough
+makefile
+Copy code
 
-### 1. Imports and Initial Setup
-- Import necessary libraries: `pandas`, `numpy`, `pathlib`.
-- Define file paths for input files:
-  - `securities_file_path = "security.txt"`
-  - `bhav_copy_files`: List of three Bhav copy CSV files.
-  - `fno_underlyings_file_path = "FNO_Underlyings.csv"`
-  - `var_data_file_path = "C_VAR1_06112025_6112025.csv"`
-- Define output file: `output_csv_file = "securities_categorized.csv"`
-- Define column names for consistency:
-  - `symbol_column = "SYMBOL"`
-  - `series_column = "SERIES"`
-  - `traded_value_column = "TtlTrfVal"`
-  - `price_range_column = "PRICE_RANGE"`
-  - `bhav_symbol_column = "TckrSymb"`
-  - `bhav_series_column = "SctySrs"`
+or:
 
-### 2. Function Definitions
+py src/main.py
 
-#### extract_price_band_percentage(price_range_string)
-- Takes a string representing price range (e.g., "100-110").
-- Handles missing or invalid data by returning 0.0.
-- Splits the string by "-" or "–" to get lower and upper limits.
-- Calculates midpoint as average of limits.
-- Computes band percentage as ((upper - midpoint) / midpoint) * 100.
-- Returns the percentage or 0.0 on error.
+yaml
+Copy code
 
-#### load_and_aggregate_bhav_data(bhav_file_list)
-- Loads multiple Bhav copy CSV files.
-- Checks if each file exists; skips if not.
-- Reads each CSV, selects required columns: symbol, series, traded value.
-- Renames columns to standard names.
-- Concatenates all dataframes.
-- Groups by symbol and aggregates:
-  - Average traded value (mean of traded_value).
-  - Last non-null series.
-- Returns aggregated dataframe or empty if no files loaded.
+---
 
-#### load_fno_underlyings_list(fno_file_path)
-- Loads F&O underlyings CSV file.
-- Checks if file exists; returns empty set if not.
-- Reads CSV, extracts unique symbols, strips whitespace.
-- Returns set of F&O symbols.
+# 🧠 Categorization Rules
 
-#### load_variance_data_from_var_file(var_file_path)
-- Loads variance data from a DAT file (treated as CSV).
-- Checks if file exists; returns empty dataframe if not.
-- Parses each line, looking for records with type '20'.
-- Extracts symbol and variance value (field 4).
-- Converts variance to float, skips invalid.
-- Returns dataframe with symbol and variance, dropping duplicates.
+### **5x Category**
+- SERIES ∈ {EQ, BE, BZ}  
+- Avg traded value > ₹50,00,000  
+- Price band % > 5  
+**OR**  
+- VAR ≤ 20 and stock is in F&O list  
 
-#### categorize_securities_into_groups(dataframe)
-- Validates required columns: average_traded_value, price_band_percentage, is_fno_stock, variance, series.
-- Fills missing values: traded_value=0, price_band=0, variance=9999.
-- Defines conditions for categories:
-  - Valid series: EQ, BE, BZ.
-  - 5x standard: valid series, traded > 50M, price band > 5%.
-  - 3x standard: valid series, traded > 20M, price band > 5%.
-  - 5x F&O: F&O stock, variance <= 20.
-  - 3x F&O: F&O stock, variance <= 33.33, not 5x F&O.
-- Assigns categories: "Only Delivery" default, "3x" or "5x" based on conditions.
-- Returns dataframe with added "category" column.
+---
 
-### 3. Main Execution
+### **3x Category**
+- SERIES ∈ {EQ, BE, BZ}  
+- Avg traded value > ₹20,00,000  
+- Price band % > 5  
+**OR**  
+- VAR ≤ 33.33 and stock is NOT eligible for 5x  
 
-#### Load Securities Data
-- Checks if `security.txt` exists; raises error if not.
-- Checks for `nse security headers.txt`:
-  - If exists, parses headers list, converts to uppercase.
-  - Reads securities file with headers.
-- Else, reads without headers, warns about missing headers.
-- Ensures symbol column exists; raises error if not.
-- Strips whitespace from symbols.
-- Prints number of securities loaded.
+---
 
-#### Merge with Bhav Data
-- Calls `load_and_aggregate_bhav_data` to get aggregated traded values and series.
-- Merges securities dataframe with bhav data on symbol (left join).
-- Prints combined data shape.
+### **Only Delivery**
+Default category for all other cases.
 
-#### Handle Series Column
-- If series column missing, uses series_from_bhav if available.
-- Fills missing series with series_from_bhav.
-- Drops series_from_bhav column if present.
+---
 
-#### Handle Average Traded Value
-- If missing, sets to 0.0, warns.
+# 📤 Output Columns
 
-#### Calculate Price Band Percentage
-- If price_range_column exists, applies `extract_price_band_percentage` to each row.
-- Else, sets to 0.0, warns.
+- SYMBOL  
+- SERIES  
+- PRICE_RANGE  
+- PRICE_BAND  
+- TRADED_VALUE  
+- VAR  
+- is_fno  
+- category  
 
-#### Add F&O Status
-- Loads F&O symbols set.
-- Adds "is_fno_stock" boolean column based on symbol presence in set.
-- Prints updated shape.
+---
 
-#### Merge Variance Data
-- Loads variance dataframe.
-- Merges with combined data on symbol (left join).
+# 📌 Sample Output Preview
 
-#### Categorize Securities
-- Calls `categorize_securities_into_groups` to assign categories.
+`output/securities_categorized.csv` contains final category assignment for each NSE symbol.
 
-#### Save Output
-- Saves categorized dataframe to `securities_categorized.csv` without index.
-- Prints success message.
+---
 
-#### Print Summaries
-- Categorization Summary: Counts per category.
-- Data Quality Report: Counts of missing values for traded value, price band, variance.
-- Processing Assumptions: Lists 5 key assumptions about data handling.
+# 👨‍💻 Developed By  
+### **Harshit Aggarwal**  
+Data Analyst & Software Engineer  
+📧 Email: *ha2884730@gmail.com*  
+🔗 GitHub: **https://github.com/aggarwalharshit21**
 
-## Outputs
-- `securities_categorized.csv`: CSV file with all securities data plus category column.
-- Console output:
-  - Number of securities loaded.
-  - Data shapes after merges.
-  - Success message for file save.
-  - Categorization counts.
-  - Missing data counts.
-  - Assumptions list.
+---
 
-## Assumptions and Data Handling
-1. If a security has no Bhav Copy data in the last 3 trading days, its average traded value is treated as 0.
-2. If price band range is missing or malformed in the securities file, price band percentage is treated as 0%.
-3. If a security is not listed in the F&O underlyings file, it is treated as a non-F&O security (regular equity only).
-4. If a security has no matching entry in the VAR file, it is not eligible for F&O-based 5x/3x overrides.
-5. Categorization precedence: 5x > 3x > Only Delivery. A security is placed in the highest applicable category.
+# 📄 License  
+This project is released under the **MIT License**.
 
-## Notes
-- The script handles missing files gracefully with warnings.
-- Variance file is expected to be in DAT format but read as CSV with comma separation.
-- All monetary values are in rupees, traded values in lakhs or similar units as per NSE data.
+---
+
+# ⭐ Feedback  
+If you found this helpful or have suggestions, feel free to open an issue or contribute!
+
+---
